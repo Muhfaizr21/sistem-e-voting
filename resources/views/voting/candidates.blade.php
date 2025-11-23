@@ -13,6 +13,22 @@
                 </div>
             @endif
 
+            <!-- User Info Card -->
+            <div class="bg-white rounded-lg shadow-sm border mb-6 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800">Halo, {{ Auth::user()->name }}! 👋</h3>
+                        <p class="text-gray-600">NIS: {{ Auth::user()->nis }} | Kelas: {{ Auth::user()->kelas }}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                            ✅ Status: Belum Memilih
+                        </span>
+                        <p class="text-xs text-gray-500 mt-1">Pilih salah satu kandidat di bawah</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <div class="text-center mb-8">
@@ -51,14 +67,14 @@
                                         <h5 class="font-semibold text-green-600 flex items-center text-sm">
                                             <span class="mr-1">🎯</span> Visi:
                                         </h5>
-                                        <p class="text-sm text-gray-700 line-clamp-2">{{ Str::limit($candidate->vision, 100) }}</p>
+                                        <p class="text-sm text-gray-700 line-clamp-2">{{ $candidate->vision }}</p>
                                     </div>
 
                                     <div>
                                         <h5 class="font-semibold text-green-600 flex items-center text-sm">
                                             <span class="mr-1">📋</span> Misi:
                                         </h5>
-                                        <p class="text-sm text-gray-700 line-clamp-3">{{ Str::limit($candidate->mission, 120) }}</p>
+                                        <p class="text-sm text-gray-700 line-clamp-3">{{ $candidate->mission }}</p>
                                     </div>
                                 </div>
 

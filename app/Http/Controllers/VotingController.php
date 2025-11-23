@@ -10,10 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class VotingController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
+    // Hapus constructor middleware, gunakan middleware di routes
 
     /**
      * Show candidates page for voting

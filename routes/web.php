@@ -5,50 +5,130 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VotingController;
 use Illuminate\Support\Facades\Route;
 
-// Public routes
+/*
+|--------------------------------------------------------------------------
+| PUBLIC ROUTES - Bisa diakses tanpa login
+|--------------------------------------------------------------------------
+*/
+
+// 🔓 Halaman Welcome/Homepage
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');
 
+// 🔓 Hasil Pemilihan (bisa dilihat publik)
 Route::get('/results', [VotingController::class, 'results'])->name('voting.results');
 
-// Auth routes (from Breeze)
+/*
+|--------------------------------------------------------------------------
+| AUTH ROUTES - Dari Laravel Breeze (Authentication)
+|--------------------------------------------------------------------------
+*/
+
+// 🔐 Redirect dashboard ke halaman voting
 Route::get('/dashboard', function () {
     return redirect()->route('voting.candidates');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+/*
+|--------------------------------------------------------------------------
+| USER ROUTES - Untuk user biasa yang sudah login & verified
+|--------------------------------------------------------------------------
+*/
+
 Route::middleware(['auth', 'verified'])->group(function () {
+
+    // 👤 Profile Management (dari Breeze)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Voting routes dengan manual check
+    // ========================
+    // 🗳️ VOTING SYSTEM ROUTES
+    // ========================
+
+    // 📋 Daftar Kandidat untuk Voting
     Route::get('/candidates', [VotingController::class, 'showCandidates'])->name('voting.candidates');
+
+    // ✅ Proses Voting
     Route::post('/vote/{candidate}', [VotingController::class, 'vote'])->name('voting.vote');
+
+    // 🙏 Halaman Terima Kasih setelah Voting
     Route::get('/thanks', [VotingController::class, 'thanks'])->name('voting.thanks');
+
+    // 📊 Hasil Pemilihan (untuk user)
+    Route::get('/results-user', [VotingController::class, 'results'])->name('voting.results.user');
+
+    // 👤 Profil User dengan riwayat voting
+    Route::get('/my-profile', [VotingController::class, 'profile'])->name('voting.profile');
+
+    // 📚 Panduan Voting
+    Route::get('/instructions', [VotingController::class, 'instructions'])->name('voting.instructions');
 });
 
-// Admin routes dengan manual check
-Route::middleware(['auth'])->prefix('admin')->group(function () {
-    // Dashboard
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+/*
+|--------------------------------------------------------------------------
+| ADMIN ROUTES - Hanya untuk admin (manual check di controller)
+|--------------------------------------------------------------------------
+*/
 
-    // Candidate Management
-    Route::get('/candidates', [AdminController::class, 'manageCandidates'])->name('admin.candidates');
-    Route::post('/candidates', [AdminController::class, 'storeCandidate'])->name('admin.candidates.store');
-    Route::get('/candidates/{id}/edit', [AdminController::class, 'editCandidate'])->name('admin.candidates.edit');
-    Route::put('/candidates/{id}', [AdminController::class, 'updateCandidate'])->name('admin.candidates.update');
-    Route::delete('/candidates/{id}', [AdminController::class, 'deleteCandidate'])->name('admin.candidates.delete');
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
 
-    // Voting Results
-    Route::get('/voting-results', [AdminController::class, 'votingResults'])->name('admin.voting.results');
+    // ========================
+    // 📊 DASHBOARD & OVERVIEW
+    // ========================
 
-    // User Management
-    Route::get('/users', [AdminController::class, 'manageUsers'])->name('admin.users');
+    // 🏠 Dashboard Admin
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-    // System Management
-    Route::post('/reset-voting', [AdminController::class, 'resetVoting'])->name('admin.reset.voting');
-    Route::get('/export-data', [AdminController::class, 'exportData'])->name('admin.export.data');
+    // ========================
+    // 👥 CANDIDATE MANAGEMENT
+    // ========================
+
+    // 📋 Kelola Kandidat
+    Route::get('/candidates', [AdminController::class, 'manageCandidates'])->name('candidates');
+
+    // ➕ Tambah Kandidat Baru
+    Route::post('/candidates', [AdminController::class, 'storeCandidate'])->name('candidates.store');
+
+    // ✏️ Form Edit Kandidat
+    Route::get('/candidates/{id}/edit', [AdminController::class, 'editCandidate'])->name('candidates.edit');
+
+    // 💾 Update Data Kandidat
+    Route::put('/candidates/{id}', [AdminController::class, 'updateCandidate'])->name('candidates.update');
+
+    // 🗑️ Hapus Kandidat
+    Route::delete('/candidates/{id}', [AdminController::class, 'deleteCandidate'])->name('candidates.delete');
+
+    // ========================
+    // 📈 VOTING RESULTS & ANALYTICS
+    // ========================
+
+    // 📊 Hasil Voting Detail (Admin)
+    Route::get('/voting-results', [AdminController::class, 'votingResults'])->name('voting.results');
+
+    // ========================
+    // 👥 USER MANAGEMENT
+    // ========================
+
+    // 👥 Kelola User
+    Route::get('/users', [AdminController::class, 'manageUsers'])->name('users');
+
+    // ========================
+    // ⚙️ SYSTEM MANAGEMENT
+    // ========================
+
+    // 🔄 Reset Semua Data Voting
+    Route::post('/reset-voting', [AdminController::class, 'resetVoting'])->name('reset.voting');
+
+    // 📥 Export Data (JSON/CSV)
+    Route::get('/export-data', [AdminController::class, 'exportData'])->name('export.data');
 });
+
+/*
+|--------------------------------------------------------------------------
+| AUTHENTICATION ROUTES - Dari Laravel Breeze
+|--------------------------------------------------------------------------
+*/
 
 require __DIR__.'/auth.php';

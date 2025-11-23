@@ -305,7 +305,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Show user management page (bonus feature)
+     * Show user management page
      */
     public function manageUsers()
     {
@@ -314,7 +314,7 @@ class AdminController extends Controller
         }
 
         try {
-            $users = User::with('vote')->orderBy('created_at', 'desc')->get();
+            $users = User::with(['vote.candidate'])->orderBy('created_at', 'desc')->get();
             return view('admin.users', compact('users'));
 
         } catch (\Exception $e) {
@@ -323,7 +323,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Reset voting (bonus feature - hati-hati!)
+     * Reset voting (hati-hati!)
      */
     public function resetVoting()
     {
@@ -353,7 +353,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Export data (bonus feature)
+     * Export data
      */
     public function exportData()
     {
@@ -380,6 +380,110 @@ class AdminController extends Controller
             return redirect()
                 ->back()
                 ->with('error', '❌ Gagal export data: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get user voting statistics
+     */
+    public function getUserStats()
+    {
+        if (!$this->isAdmin()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        try {
+            $totalUsers = User::count();
+            $votedUsers = User::where('has_voted', true)->count();
+            $notVotedUsers = User::where('has_voted', false)->count();
+
+            return response()->json([
+                'total_users' => $totalUsers,
+                'voted_users' => $votedUsers,
+                'not_voted_users' => $notVotedUsers,
+                'participation_rate' => $totalUsers > 0 ? round(($votedUsers / $totalUsers) * 100, 1) : 0
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to get user stats'], 500);
+        }
+    }
+
+    /**
+     * Get candidate statistics
+     */
+    public function getCandidateStats()
+    {
+        if (!$this->isAdmin()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        try {
+            $candidates = Candidate::withCount('votes')
+                ->orderBy('vote_count', 'desc')
+                ->get()
+                ->map(function ($candidate) {
+                    return [
+                        'id' => $candidate->id,
+                        'name' => $candidate->name,
+                        'class' => $candidate->class,
+                        'vote_count' => $candidate->vote_count,
+                        'photo' => $candidate->photo ? asset('storage/' . $candidate->photo) : null
+                    ];
+                });
+
+            return response()->json([
+                'candidates' => $candidates,
+                'total_votes' => Vote::count()
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to get candidate stats'], 500);
+        }
+    }
+
+    /**
+     * Get recent activity
+     */
+    public function getRecentActivity()
+    {
+        if (!$this->isAdmin()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        try {
+            $recentVotes = Vote::with(['user', 'candidate'])
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get()
+                ->map(function ($vote) {
+                    return [
+                        'user_name' => $vote->user->name,
+                        'candidate_name' => $vote->candidate->name,
+                        'time' => $vote->created_at->diffForHumans(),
+                        'class' => $vote->user->kelas
+                    ];
+                });
+
+            $recentUsers = User::orderBy('created_at', 'desc')
+                ->take(5)
+                ->get()
+                ->map(function ($user) {
+                    return [
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'time' => $user->created_at->diffForHumans(),
+                        'has_voted' => $user->has_voted
+                    ];
+                });
+
+            return response()->json([
+                'recent_votes' => $recentVotes,
+                'recent_users' => $recentUsers
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to get recent activity'], 500);
         }
     }
 }
