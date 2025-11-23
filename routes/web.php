@@ -17,23 +17,38 @@ Route::get('/dashboard', function () {
     return redirect()->route('voting.candidates');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Voting routes
+    // Voting routes dengan manual check
     Route::get('/candidates', [VotingController::class, 'showCandidates'])->name('voting.candidates');
     Route::post('/vote/{candidate}', [VotingController::class, 'vote'])->name('voting.vote');
     Route::get('/thanks', [VotingController::class, 'thanks'])->name('voting.thanks');
 });
 
-// Admin routes
-Route::middleware(['auth', 'admin.access'])->prefix('admin')->group(function () {
+// Admin routes dengan manual check
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+    // Dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+
+    // Candidate Management
     Route::get('/candidates', [AdminController::class, 'manageCandidates'])->name('admin.candidates');
     Route::post('/candidates', [AdminController::class, 'storeCandidate'])->name('admin.candidates.store');
+    Route::get('/candidates/{id}/edit', [AdminController::class, 'editCandidate'])->name('admin.candidates.edit');
+    Route::put('/candidates/{id}', [AdminController::class, 'updateCandidate'])->name('admin.candidates.update');
     Route::delete('/candidates/{id}', [AdminController::class, 'deleteCandidate'])->name('admin.candidates.delete');
+
+    // Voting Results
+    Route::get('/voting-results', [AdminController::class, 'votingResults'])->name('admin.voting.results');
+
+    // User Management
+    Route::get('/users', [AdminController::class, 'manageUsers'])->name('admin.users');
+
+    // System Management
+    Route::post('/reset-voting', [AdminController::class, 'resetVoting'])->name('admin.reset.voting');
+    Route::get('/export-data', [AdminController::class, 'exportData'])->name('admin.export.data');
 });
 
 require __DIR__.'/auth.php';
