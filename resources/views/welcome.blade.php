@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VoteAcademy - Sistem E-Voting Sekolah Modern</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="//unpkg.com/alpinejs" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -186,32 +187,80 @@
             <div class="flex justify-between items-center h-20">
                 <!-- Logo -->
                 <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 modern-gradient rounded-xl flex items-center justify-center shadow-lg">
-                        <i class="fas fa-vote-yea text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-900">VoteAcademy</h1>
-                        <p class="text-xs text-purple-600 font-semibold">Modern Voting System</p>
-                    </div>
+                    <a href="{{ route('home') }}" class="flex items-center space-x-3">
+                        <div class="w-12 h-12 modern-gradient rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-vote-yea text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900">VoteAcademy</h1>
+                            <p class="text-xs text-purple-600 font-semibold">Modern Voting System</p>
+                        </div>
+                    </a>
                 </div>
 
                 <!-- Desktop Navigation -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#home" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors">Beranda</a>
-                    <a href="#features" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors">Fitur</a>
-                    <a href="#candidates" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors">Kandidat</a>
-                    <a href="#results" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors">Hasil</a>
-                    <a href="#testimonials" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors">Testimoni</a>
+                    <a href="{{ route('home') }}#home" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors">Beranda</a>
+                    <a href="{{ route('home') }}#features" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors">Fitur</a>
+                    <a href="{{ route('voting.results') }}" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors">Hasil</a>
+
+                    @auth
+                        @if(Auth::user()->is_admin)
+                            <a href="{{ route('admin.dashboard') }}" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors">Admin</a>
+                        @else
+                            <a href="{{ route('voting.candidates') }}" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors">Voting</a>
+                        @endif
+                    @endauth
                 </div>
 
                 <!-- Auth Buttons -->
                 <div class="flex items-center space-x-4">
-                    <button class="hidden md:block text-gray-700 hover:text-purple-600 font-semibold transition-colors px-4 py-2">
-                        <i class="fas fa-sign-in-alt mr-2"></i>Masuk
-                    </button>
-                    <button class="btn-primary">
-                        <i class="fas fa-user-plus mr-2"></i>Daftar Sekarang
-                    </button>
+                    @auth
+                        <!-- User Menu -->
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="flex items-center space-x-2 text-gray-700 hover:text-purple-600 font-semibold transition-colors px-4 py-2">
+                                <i class="fas fa-user-circle text-xl"></i>
+                                <span class="hidden md:block">{{ Auth::user()->name }}</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+
+                            <!-- Dropdown Menu -->
+                            <div x-show="open" @click.away="open = false"
+                                 class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200">
+                                @if(Auth::user()->is_admin)
+                                    <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                                        <i class="fas fa-tachometer-alt mr-2"></i>Dashboard Admin
+                                    </a>
+                                @else
+                                    <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                                        <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                                    </a>
+                                    <a href="{{ route('voting.profile') }}" class="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                                        <i class="fas fa-user mr-2"></i>Profil Saya
+                                    </a>
+                                @endif
+                                <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                                    <i class="fas fa-cog mr-2"></i>Pengaturan
+                                </a>
+                                <hr class="my-2 border-gray-200">
+                                <!-- Authentication -->
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                                        <i class="fas fa-sign-out-alt mr-2"></i>Keluar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @else
+                        <!-- Guest Menu -->
+                        <a href="{{ route('login') }}" class="hidden md:block text-gray-700 hover:text-purple-600 font-semibold transition-colors px-4 py-2">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Masuk
+                        </a>
+                        <a href="{{ route('register') }}" class="btn-primary">
+                            <i class="fas fa-user-plus mr-2"></i>Daftar Sekarang
+                        </a>
+                    @endauth
                 </div>
             </div>
         </div>
@@ -239,14 +288,28 @@
 
                     <!-- CTA Buttons -->
                     <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                        <button class="bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center space-x-2">
-                            <span>Mulai Voting</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </button>
-                        <button class="border-2 border-white text-white hover:bg-white hover:text-purple-600 px-8 py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center space-x-2">
-                            <i class="fas fa-play-circle"></i>
-                            <span>Lihat Demo</span>
-                        </button>
+                        @auth
+                            @if(Auth::user()->is_admin)
+                                <a href="{{ route('admin.dashboard') }}" class="bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center space-x-2">
+                                    <span>Dashboard Admin</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            @else
+                                <a href="{{ route('voting.candidates') }}" class="bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center space-x-2">
+                                    <span>Mulai Voting</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            @endif
+                        @else
+                            <a href="{{ route('register') }}" class="bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center space-x-2">
+                                <span>Daftar Sekarang</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                            <a href="{{ route('login') }}" class="border-2 border-white text-white hover:bg-white hover:text-purple-600 px-8 py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center space-x-2">
+                                <i class="fas fa-sign-in-alt mr-2"></i>
+                                <span>Masuk</span>
+                            </a>
+                        @endauth
                     </div>
 
                     <!-- Stats Row -->
@@ -467,9 +530,17 @@
                             <div class="text-2xl font-bold text-purple-300">856 suara</div>
                             <div class="text-gray-400 text-sm">58% dukungan</div>
                         </div>
-                        <button class="btn-primary">
-                            <i class="fas fa-vote-yea mr-2"></i>Pilih
-                        </button>
+                        @auth
+                            @unless(Auth::user()->is_admin)
+                                <button class="btn-primary">
+                                    <i class="fas fa-vote-yea mr-2"></i>Pilih
+                                </button>
+                            @endunless
+                        @else
+                            <a href="{{ route('login') }}" class="btn-primary">
+                                <i class="fas fa-sign-in-alt mr-2"></i>Login untuk Memilih
+                            </a>
+                        @endauth
                     </div>
                 </div>
 
@@ -517,9 +588,17 @@
                             <div class="text-2xl font-bold text-pink-300">610 suara</div>
                             <div class="text-gray-400 text-sm">42% dukungan</div>
                         </div>
-                        <button class="btn-primary">
-                            <i class="fas fa-vote-yea mr-2"></i>Pilih
-                        </button>
+                        @auth
+                            @unless(Auth::user()->is_admin)
+                                <button class="btn-primary">
+                                    <i class="fas fa-vote-yea mr-2"></i>Pilih
+                                </button>
+                            @endunless
+                        @else
+                            <a href="{{ route('login') }}" class="btn-primary">
+                                <i class="fas fa-sign-in-alt mr-2"></i>Login untuk Memilih
+                            </a>
+                        @endauth
                     </div>
                 </div>
             </div>
@@ -694,14 +773,28 @@
             </p>
 
             <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-                <button class="bg-white text-purple-600 px-10 py-4 rounded-xl font-bold text-lg shadow-2xl hover:shadow-3xl transition-all hover:scale-105 flex items-center justify-center space-x-2">
-                    <i class="fas fa-rocket"></i>
-                    <span>Coba Gratis</span>
-                </button>
-                <button class="border-2 border-white text-white hover:bg-white hover:text-purple-600 px-10 py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center space-x-2">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span>Request Demo</span>
-                </button>
+                @auth
+                    @if(Auth::user()->is_admin)
+                        <a href="{{ route('admin.dashboard') }}" class="bg-white text-purple-600 px-10 py-4 rounded-xl font-bold text-lg shadow-2xl hover:shadow-3xl transition-all hover:scale-105 flex items-center justify-center space-x-2">
+                            <i class="fas fa-tachometer-alt mr-2"></i>
+                            <span>Dashboard Admin</span>
+                        </a>
+                    @else
+                        <a href="{{ route('voting.candidates') }}" class="bg-white text-purple-600 px-10 py-4 rounded-xl font-bold text-lg shadow-2xl hover:shadow-3xl transition-all hover:scale-105 flex items-center justify-center space-x-2">
+                            <i class="fas fa-vote-yea mr-2"></i>
+                            <span>Mulai Voting</span>
+                        </a>
+                    @endif
+                @else
+                    <a href="{{ route('register') }}" class="bg-white text-purple-600 px-10 py-4 rounded-xl font-bold text-lg shadow-2xl hover:shadow-3xl transition-all hover:scale-105 flex items-center justify-center space-x-2">
+                        <i class="fas fa-rocket mr-2"></i>
+                        <span>Daftar Sekarang</span>
+                    </a>
+                    <a href="{{ route('login') }}" class="border-2 border-white text-white hover:bg-white hover:text-purple-600 px-10 py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center space-x-2">
+                        <i class="fas fa-sign-in-alt mr-2"></i>
+                        <span>Masuk</span>
+                    </a>
+                @endauth
             </div>
 
             <!-- Trust Stats -->
@@ -764,10 +857,10 @@
                 <div>
                     <h4 class="font-bold text-lg mb-6">Menu Cepat</h4>
                     <ul class="space-y-3">
-                        <li><a href="#features" class="text-gray-400 hover:text-purple-400 transition-colors">Fitur</a></li>
-                        <li><a href="#candidates" class="text-gray-400 hover:text-purple-400 transition-colors">Kandidat</a></li>
-                        <li><a href="#results" class="text-gray-400 hover:text-purple-400 transition-colors">Hasil</a></li>
-                        <li><a href="#testimonials" class="text-gray-400 hover:text-purple-400 transition-colors">Testimoni</a></li>
+                        <li><a href="{{ route('home') }}#features" class="text-gray-400 hover:text-purple-400 transition-colors">Fitur</a></li>
+                        <li><a href="{{ route('home') }}#candidates" class="text-gray-400 hover:text-purple-400 transition-colors">Kandidat</a></li>
+                        <li><a href="{{ route('voting.results') }}" class="text-gray-400 hover:text-purple-400 transition-colors">Hasil</a></li>
+                        <li><a href="{{ route('home') }}#testimonials" class="text-gray-400 hover:text-purple-400 transition-colors">Testimoni</a></li>
                     </ul>
                 </div>
 
@@ -800,12 +893,12 @@
     </footer>
 
     <!-- Floating Action Button -->
-    <button class="fixed bottom-8 right-8 w-14 h-14 modern-gradient rounded-full shadow-2xl hover:shadow-3xl transition-all hover:scale-110 z-50 flex items-center justify-center text-white">
+    <button class="fixed bottom-8 right-8 w-14 h-14 modern-gradient rounded-full shadow-2xl hover:shadow-3xl transition-all hover:scale-110 z-50 flex items-center justify-center text-white" onclick="scrollToTop()">
         <i class="fas fa-arrow-up"></i>
     </button>
 
     <script>
-        // Smooth Scroll
+        // Smooth Scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -819,13 +912,13 @@
             });
         });
 
-        // Scroll to Top
-        document.querySelector('.fixed.bottom-8.right-8').addEventListener('click', () => {
+        // Scroll to Top function
+        function scrollToTop() {
             window.scrollTo({
                 top: 0,
                 behavior: 'smooth'
             });
-        });
+        }
 
         // Animate progress bars on scroll
         const observer = new IntersectionObserver((entries) => {

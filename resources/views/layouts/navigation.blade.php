@@ -1,176 +1,83 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
-    <!-- Primary Navigation Menu -->
+<!-- resources/views/components/navigation.blade.php -->
+<nav class="fixed w-full top-0 z-50 nav-blur border-b border-gray-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" class="flex items-center">
-                        <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-2 rounded-lg">
-                            <span class="text-white text-xl font-bold">🎓</span>
-                        </div>
-                        <div class="ml-3">
-                            <h1 class="text-xl font-bold text-gray-900">PILKETOS</h1>
-                            <p class="text-xs text-gray-500">Pemilihan Ketua OSIS</p>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Navigation Links -->
-                @if(Auth::user()->email !== 'admin@pilketos.id')
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('voting.candidates')" :active="request()->routeIs('voting.candidates')" class="flex items-center">
-                        <span class="mr-2 text-lg">🗳️</span> Voting
-                    </x-nav-link>
-                    <x-nav-link :href="route('voting.results')" :active="request()->routeIs('voting.results')" class="flex items-center">
-                        <span class="mr-2 text-lg">📊</span> Hasil
-                    </x-nav-link>
-                    <x-nav-link :href="route('voting.profile')" :active="request()->routeIs('voting.profile')" class="flex items-center">
-                        <span class="mr-2 text-lg">👤</span> Profil Saya
-                    </x-nav-link>
-                    <x-nav-link :href="route('voting.instructions')" :active="request()->routeIs('voting.instructions')" class="flex items-center">
-                        <span class="mr-2 text-lg">📚</span> Panduan
-                    </x-nav-link>
-                </div>
-                @endif
-            </div>
-
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-2">
-                                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                                </div>
-                                <div class="text-left">
-                                    <div class="font-medium text-gray-900">{{ Auth::user()->name }}</div>
-                                    <div class="text-xs text-gray-500">
-                                        @if(Auth::user()->email === 'admin@pilketos.id')
-                                            Administrator
-                                        @else
-                                            {{ Auth::user()->kelas }}
-                                        @endif
-                                    </div>
-                                </div>
-                                <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                </svg>
-                            </div>
-                        </button>
-                    </x-slot>
-
-                    <x-slot name="content">
-                        @if(Auth::user()->email === 'admin@pilketos.id')
-                            <x-dropdown-link :href="route('admin.dashboard')" class="flex items-center">
-                                <span class="mr-2">👑</span> Admin Panel
-                            </x-dropdown-link>
-                            <div class="border-t my-1"></div>
-                        @endif
-
-                        <x-dropdown-link :href="route('voting.profile')" class="flex items-center">
-                            <span class="mr-2">👤</span> Profil Saya
-                        </x-dropdown-link>
-
-                        @if(Auth::user()->email !== 'admin@pilketos.id')
-                        <x-dropdown-link :href="route('voting.instructions')" class="flex items-center">
-                            <span class="mr-2">📚</span> Panduan
-                        </x-dropdown-link>
-                        @endif
-
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();"
-                                    class="flex items-center text-red-600">
-                                <span class="mr-2">🚪</span> Logout
-                            </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown>
-            </div>
-
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            @if(Auth::user()->email !== 'admin@pilketos.id')
-            <x-responsive-nav-link :href="route('voting.candidates')" :active="request()->routeIs('voting.candidates')" class="flex items-center">
-                <span class="mr-3 text-lg">🗳️</span> Voting
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('voting.results')" :active="request()->routeIs('voting.results')" class="flex items-center">
-                <span class="mr-3 text-lg">📊</span> Hasil
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('voting.profile')" :active="request()->routeIs('voting.profile')" class="flex items-center">
-                <span class="mr-3 text-lg">👤</span> Profil Saya
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('voting.instructions')" :active="request()->routeIs('voting.instructions')" class="flex items-center">
-                <span class="mr-3 text-lg">📚</span> Panduan
-            </x-responsive-nav-link>
-            @endif
-        </div>
-
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800 flex items-center">
-                    <div class="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3">
-                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+        <div class="flex justify-between items-center h-20">
+            <!-- Logo -->
+            <div class="flex items-center space-x-3">
+                <a href="{{ route('home') }}" class="flex items-center space-x-3">
+                    <div class="w-12 h-12 modern-gradient rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-vote-yea text-white text-xl"></i>
                     </div>
                     <div>
-                        <div>{{ Auth::user()->name }}</div>
-                        <div class="text-sm text-gray-500">
-                            @if(Auth::user()->email === 'admin@pilketos.id')
-                                Administrator
-                            @else
-                                {{ Auth::user()->kelas }}
-                            @endif
-                        </div>
+                        <h1 class="text-2xl font-bold text-gray-900">VoteAcademy</h1>
+                        <p class="text-xs text-purple-600 font-semibold">Modern Voting System</p>
                     </div>
-                </div>
+                </a>
             </div>
 
-            <div class="mt-3 space-y-1">
-                @if(Auth::user()->email === 'admin@pilketos.id')
-                    <x-responsive-nav-link :href="route('admin.dashboard')" class="flex items-center">
-                        <span class="mr-3">👑</span> Admin Panel
-                    </x-responsive-nav-link>
-                @endif
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="{{ route('home') }}" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors">Beranda</a>
+                <a href="#features" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors">Fitur</a>
+                <a href="{{ route('voting.results') }}" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors">Hasil</a>
 
-                <x-responsive-nav-link :href="route('voting.profile')" class="flex items-center">
-                    <span class="mr-3">👤</span> Profil Saya
-                </x-responsive-nav-link>
+                @auth
+                    @if(Auth::user()->is_admin)
+                        <a href="{{ route('admin.dashboard') }}" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors">Admin</a>
+                    @else
+                        <a href="{{ route('voting.candidates') }}" class="text-gray-700 hover:text-purple-600 font-semibold transition-colors">Voting</a>
+                    @endif
+                @endauth
+            </div>
 
-                @if(Auth::user()->email !== 'admin@pilketos.id')
-                <x-responsive-nav-link :href="route('voting.instructions')" class="flex items-center">
-                    <span class="mr-3">📚</span> Panduan
-                </x-responsive-nav-link>
-                @endif
+            <!-- Auth Buttons -->
+            <div class="flex items-center space-x-4">
+                @auth
+                    <!-- User Menu -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" class="flex items-center space-x-2 text-gray-700 hover:text-purple-600 font-semibold transition-colors">
+                            <i class="fas fa-user-circle text-xl"></i>
+                            <span class="hidden md:block">{{ Auth::user()->name }}</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
 
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();"
-                            class="flex items-center text-red-600">
-                        <span class="mr-3">🚪</span> Logout
-                    </x-responsive-nav-link>
-                </form>
+                        <!-- Dropdown Menu -->
+                        <div x-show="open" @click.away="open = false"
+                             class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+                            @if(Auth::user()->is_admin)
+                                <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600">
+                                    <i class="fas fa-tachometer-alt mr-2"></i>Dashboard Admin
+                                </a>
+                            @else
+                                <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600">
+                                    <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                                </a>
+                                <a href="{{ route('voting.profile') }}" class="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600">
+                                    <i class="fas fa-user mr-2"></i>Profil Saya
+                                </a>
+                            @endif
+                            <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600">
+                                <i class="fas fa-cog mr-2"></i>Pengaturan
+                            </a>
+                            <hr class="my-1">
+                            <!-- Authentication -->
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Keluar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @else
+                    <!-- Guest Menu -->
+                    <a href="{{ route('login') }}" class="hidden md:block text-gray-700 hover:text-purple-600 font-semibold transition-colors px-4 py-2">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Masuk
+                    </a>
+                    <a href="{{ route('register') }}" class="btn-primary">
+                        <i class="fas fa-user-plus mr-2"></i>Daftar Sekarang
+                    </a>
+                @endauth
             </div>
         </div>
     </div>
