@@ -1,4 +1,5 @@
 <?php
+// app/Models/Candidate.php
 
 namespace App\Models;
 
@@ -10,7 +11,12 @@ class Candidate extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'class', 'vision', 'mission', 'photo', 'vote_count'
+        'name',
+        'class',
+        'vision',
+        'mission',
+        'photo',
+        'vote_count'
     ];
 
     public function votes()

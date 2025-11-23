@@ -25,9 +25,9 @@ Route::get('/results', [VotingController::class, 'results'])->name('voting.resul
 |--------------------------------------------------------------------------
 */
 
-// 🔐 Redirect dashboard ke halaman voting
+// 🔐 Dashboard user
 Route::get('/dashboard', function () {
-    return redirect()->route('voting.candidates');
+    return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 /*
@@ -55,9 +55,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // 🙏 Halaman Terima Kasih setelah Voting
     Route::get('/thanks', [VotingController::class, 'thanks'])->name('voting.thanks');
-
-    // 📊 Hasil Pemilihan (untuk user)
-    Route::get('/results-user', [VotingController::class, 'results'])->name('voting.results.user');
 
     // 👤 Profil User dengan riwayat voting
     Route::get('/my-profile', [VotingController::class, 'profile'])->name('voting.profile');

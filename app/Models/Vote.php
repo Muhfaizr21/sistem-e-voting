@@ -1,4 +1,5 @@
 <?php
+// app/Models/Vote.php
 
 namespace App\Models;
 
@@ -9,14 +10,15 @@ class Vote extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'candidate_id', 'voted_at'];
+    protected $fillable = [
+        'user_id',
+        'candidate_id',
+        'voted_at'
+    ];
 
-    protected function casts(): array
-    {
-        return [
-            'voted_at' => 'datetime'
-        ];
-    }
+    protected $casts = [
+        'voted_at' => 'datetime'
+    ];
 
     public function user()
     {
